@@ -1,7 +1,8 @@
 import pandas as pd
 from pandas.core.frame import DataFrame
 import numpy as np
-from needed import SqlManager,create_folder
+from needed import SqlManager, create_folder
+from sklearn import preprocessing
 
 
 def drop_numerical_outliers(input_df):
@@ -76,16 +77,21 @@ def pre_processing(df: DataFrame):
     df.to_sql(name="before_process", con=sql_manager.conn, if_exists="replace")
     missing_data_df = missing_data(df)
     missing_data_df.to_sql(name="missing_information", con=sql_manager.conn, if_exists="replace")
-    df = df.drop(columns=["status_id","status_type", "status_published", 'Column1', "Column2", "Column3", "Column4"])
+    df = df.drop(columns=["status_id", "status_type", "status_published", 'Column1', "Column2", "Column3", "Column4"])
     main_df = df.dropna()
     print(main_df.shape)
-    # main_df = main_df.drop(columns=['Column1',"Column2","Column3","Column4"])
     outliers_df, main_df = drop_numerical_outliers(main_df)
     main_df = main_df[['num_reactions',
                        'num_comments', 'num_shares', 'num_likes', 'num_loves', 'num_wows',
                        'num_hahas', 'num_sads', 'num_angrys']]
     outliers_df.to_sql(name="outliers", con=SqlManager("information.sqlite").conn, if_exists="replace", index=False)
-    main_df.to_sql(name="information", con=SqlManager("information.sqlite").conn, if_exists="replace", index=False)
+    main_df.to_sql(name="after_clear", con=SqlManager("information.sqlite").conn, if_exists="replace", index=False)
+    scaled_df = DataFrame(preprocessing.robust_scale(main_df), columns=['num_reactions',
+                                                                        'num_comments', 'num_shares', 'num_likes',
+                                                                        'num_loves',
+                                                                        'num_wows',
+                                                                        'num_hahas', 'num_sads', 'num_angrys'])
+    scaled_df.to_sql(name="information", con=SqlManager("information.sqlite").conn, if_exists="replace", index=False)
     print(main_df.shape)
     main_df.describe().to_sql(name="describe", con=sql_manager.conn, if_exists='replace')
     create_folder("outs")

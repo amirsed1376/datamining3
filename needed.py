@@ -11,3 +11,4 @@ class SqlManager:
 def create_folder(address):
     if not os.path.exists(address):
         os.makedirs(address)
+
