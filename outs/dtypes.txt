@@ -1,0 +1,11 @@
+status_type      int32
+num_reactions    int64
+num_comments     int64
+num_shares       int64
+num_likes        int64
+num_loves        int64
+num_wows         int64
+num_hahas        int64
+num_sads         int64
+num_angrys       int64
+dtype: object
