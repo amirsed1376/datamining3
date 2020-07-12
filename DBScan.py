@@ -4,6 +4,8 @@ from needed import SqlManager, create_folder
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 import pandas as pd
+from sklearn.metrics import davies_bouldin_score
+
 
 columns = ['num_reactions',
            'num_comments', 'num_shares', 'num_likes', 'num_loves', 'num_wows',
@@ -49,13 +51,15 @@ def best_db_scan(df, sql_manager):
 
 
 def reduce_dimension_DBSCAN(samples, sql_manager):
-    db_scan = DBSCAN()
+    db_scan = DBSCAN(eps=0.85)
     db_scan.fit(samples)
+    datas=samples.copy()
     samples["cluster"] = db_scan.labels_
-    samples.to_sql(name="reduce_dimension_DBSCAN", con=sql_manager.conn, if_exists="replace")
+    samples.to_sql(name="reduce_dimension_DBSCAN_cluster", con=sql_manager.conn, if_exists="replace")
     plt.scatter(samples[0], samples[1], c=samples["cluster"])
     plt.savefig("outs\\reduce_dimension_DBSCAN.png")
     plt.close()
+    print("davies_bouldin_score=",davies_bouldin_score(datas,samples["cluster"]))
 
 
 if __name__ == '__main__':

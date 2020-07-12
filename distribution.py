@@ -1,11 +1,8 @@
-from pandas.core.frame import DataFrame
 from needed import SqlManager, create_folder
 import matplotlib.pyplot as plt
 import seaborn as sn
-from sklearn import preprocessing
 import pandas as pd
 import seaborn as sns
-import matplotlib.colors as mcolors
 
 
 def pie_plots(columns_name):
@@ -61,6 +58,16 @@ def hist2d(df, columns):
             plt.savefig("outs\\hist2d\\{}--{}.png".format(columns[i], columns[j]))
             plt.close()
 
+def self_hist2d(df, columns):
+    create_folder("outs\\self_hist2d")
+    for i in range(len(columns)):
+        plt.hist2d(df[columns[i]], df[columns[i]], (50, 50), cmin=1 )
+        plt.colorbar()
+        plt.xlabel(columns[i])
+        plt.savefig("outs\\self_hist2d\\{}.png".format(columns[i]))
+        plt.close()
+
+
 def density(df, columns):
     create_folder("outs\\density")
     for i in range(len(columns)):
@@ -90,6 +97,8 @@ def hex_bin(df, columns):
             plt.close()
 
 
+
+
 if __name__ == '__main__':
     sql_manager = SqlManager("information.sqlite")
     try:
@@ -103,7 +112,8 @@ if __name__ == '__main__':
                     'num_hahas', 'num_sads', 'num_angrys']
 
     df = pd.read_sql_query("select * from information", con=sql_manager.conn)
-    hist2d(df, columns_name)
+    # hist2d(df, columns_name)
+    self_hist2d(df,columns_name)
     # density(df, columns=columns_name)
     # point_point_plot(df, columns_name)
     # hex_bin(df, columns_name)

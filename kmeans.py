@@ -4,6 +4,7 @@ from needed import SqlManager, create_folder
 import pandas as pd
 from pandas.core.frame import DataFrame
 from matplotlib import pyplot as plt
+from sklearn.metrics import davies_bouldin_score
 
 columns = ['status_type', 'num_reactions',
            'num_comments', 'num_shares', 'num_likes', 'num_loves', 'num_wows',
@@ -71,6 +72,7 @@ def best_k_means(df, k, sql_manager):
 def reduce_dimension_k_means(samples, k, sql_manager):
     k_means = KMeans(n_clusters=k, random_state=5)
     k_means.fit(samples)
+    datas=samples.copy()
     samples["cluster"] = k_means.labels_
     samples.to_sql(name="KMeans_reduce_dimension_clusters", con=sql_manager.conn, if_exists="replace")
     center_df = DataFrame(k_means.cluster_centers_)
@@ -83,6 +85,8 @@ def reduce_dimension_k_means(samples, k, sql_manager):
     plt.scatter(x_centers, y_centers, c="r", marker="+", s=200)
     plt.savefig("outs\\reduce_dimension_k_means.png")
     plt.close()
+    print("davies_bouldin_score=",davies_bouldin_score(datas,samples["cluster"]))
+
 
 
 if __name__ == '__main__':
